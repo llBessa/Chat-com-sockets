@@ -1,4 +1,9 @@
 import socket
+from lib import *
+
+generateKeys()
+private_key, public_key = loadKeys()
+print("chaves carregadas")
 
 HOST = ''  # Endereço IP do servidor
 PORT = 5000  # Porta que o servidor vai escutar
@@ -20,16 +25,18 @@ print(f'Conectado por {addr}')
 
 while True:
     # Aguarda uma mensagem do cliente
-    data = conn.recv(1024)
-    client_message = data.decode()
+    data = conn.recv(4096)
+    client_message = data
+    dec_message = rsa.decrypt(client_message, private_key).decode()
 
-    if(client_message == 'endconn'): break
+    if(dec_message == 'endconn'): break
 
-    print(f'Cliente: {client_message}')
+    print(f'Cliente: {dec_message}')
 
     # Envia uma resposta para o cliente
     message = input("sua mensagem: ").encode()
-    conn.sendall(message)
+    enc_message = rsa.encrypt(message, public_key)
+    conn.sendall(enc_message)
     if(message.decode() == 'endconn'): break
 
 # Fecha a conexão
