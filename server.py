@@ -18,12 +18,19 @@ print(f'Servidor escutando na porta {PORT}...')
 conn, addr = s.accept()
 print(f'Conectado por {addr}')
 
-# Aguarda uma mensagem do cliente
-data = conn.recv(1024)
-print(f'Mensagem recebida: {data.decode()}')
+while True:
+    # Aguarda uma mensagem do cliente
+    data = conn.recv(1024)
+    client_message = data.decode()
 
-# Envia uma resposta para o cliente
-conn.sendall('Mensagem recebida com sucesso!'.encode())
+    if(client_message == 'endconn'): break
+
+    print(f'Cliente: {client_message}')
+
+    # Envia uma resposta para o cliente
+    message = input("sua mensagem: ").encode()
+    conn.sendall(message)
+    if(message.decode() == 'endconn'): break
 
 # Fecha a conexão
 conn.close()
