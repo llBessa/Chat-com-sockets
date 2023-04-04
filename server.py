@@ -1,36 +1,39 @@
 import socket
+import threading
 
-HOST = ''  # Endereço IP do servidor
-PORT = 5000  # Porta que o servidor vai escutar
+HOST = ''
+PORT = 5000
 
-# Cria um objeto socket
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientes = []
 
-# Associa o objeto socket ao endereço e porta especificados
-s.bind((HOST, PORT))
+def transmitir_mensagem(mensagem, remetente):
+    for cliente in clientes:
+        if cliente != remetente:
+            cliente.send(mensagem)
 
-# Define o limite máximo de conexões simultâneas
-s.listen(1)
+def lidar_com_cliente(cliente_socket, endereco):
+    print(f"Conexão estabelecida com {endereco}")
+    
+    clientes.append(cliente_socket)
+    
+    while True:
+        mensagem = cliente_socket.recv(1024).decode('utf-8')
+        if not mensagem:
+            break
+        
+        mensagem_formatada = f"{endereco}: {mensagem}"
+        print(mensagem_formatada)
+        transmitir_mensagem(mensagem_formatada.encode('utf-8'), cliente_socket)
+    
+    clientes.remove(cliente_socket)
+    cliente_socket.close()
+    print(f"Conexão fechada com {endereco}")
 
-print(f'Servidor escutando na porta {PORT}...')
-
-# Aguarda uma conexão
-conn, addr = s.accept()
-print(f'Conectado por {addr}')
+servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+servidor_socket.bind((HOST, PORT))
+servidor_socket.listen(5)
 
 while True:
-    # Aguarda uma mensagem do cliente
-    data = conn.recv(1024)
-    client_message = data.decode()
-
-    if(client_message == 'endconn'): break
-
-    print(f'Cliente: {client_message}')
-
-    # Envia uma resposta para o cliente
-    message = input("sua mensagem: ").encode()
-    conn.sendall(message)
-    if(message.decode() == 'endconn'): break
-
-# Fecha a conexão
-conn.close()
+    cliente_socket, endereco = servidor_socket.accept()
+    thread_cliente = threading.Thread(target=lidar_com_cliente, args=(cliente_socket, endereco))
+    thread_cliente.start()
