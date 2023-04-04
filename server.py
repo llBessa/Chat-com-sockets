@@ -25,8 +25,8 @@ def lidar_com_cliente(cliente_socket, endereco):
         
         mensagem_formatada = f"{endereco}: {mensagem_traduzida}"
         print(mensagem_formatada)
-        mensagem_formatada_criptografada = rsa.encrypt(mensagem_formatada.encode(), publicKey)
-        transmitir_mensagem(mensagem_formatada_criptografada, cliente_socket)
+        mensagem_criptografada = rsa.encrypt(mensagem_formatada.encode(), publicKey)
+        transmitir_mensagem(mensagem_criptografada, cliente_socket)
     
     clientes.remove(cliente_socket)
     cliente_socket.close()
