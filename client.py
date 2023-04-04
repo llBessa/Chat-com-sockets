@@ -16,5 +16,5 @@ thread_receber = threading.Thread(target=receber_mensagens, args=(cliente_socket
 thread_receber.start()
 
 while True:
-    mensagem = input("Digite uma mensagem: ")
+    mensagem = input()
     cliente_socket.send(mensagem.encode('utf-8'))

@@ -33,6 +33,8 @@ servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 servidor_socket.bind((HOST, PORT))
 servidor_socket.listen(5)
 
+print(f"Servidor escutando na porta {PORT}")
+
 while True:
     cliente_socket, endereco = servidor_socket.accept()
     thread_cliente = threading.Thread(target=lidar_com_cliente, args=(cliente_socket, endereco))
