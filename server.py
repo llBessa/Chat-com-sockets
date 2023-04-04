@@ -18,17 +18,24 @@ def lidar_com_cliente(cliente_socket, endereco):
     clientes.append(cliente_socket)
     
     while True:
-        mensagem = cliente_socket.recv(1024).decode('utf-8')
+        mensagem = cliente_socket.recv(1024)
+        mensagem_traduzida = rsa.decrypt(mensagem, privateKey).decode()
         if not mensagem:
             break
         
-        mensagem_formatada = f"{endereco}: {mensagem}"
+        mensagem_formatada = f"{endereco}: {mensagem_traduzida}"
         print(mensagem_formatada)
-        transmitir_mensagem(mensagem_formatada.encode('utf-8'), cliente_socket)
+        mensagem_formatada_criptografada = rsa.encrypt(mensagem_formatada.encode(), publicKey)
+        transmitir_mensagem(mensagem_formatada_criptografada, cliente_socket)
     
     clientes.remove(cliente_socket)
     cliente_socket.close()
     print(f"Conexão fechada com {endereco}")
+
+# Cria as chaves publica e privada para criptografia e as salva
+generateKeys()
+privateKey, publicKey = loadKeys()
+print("Chaves geradas com sucesso!")
 
 servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 servidor_socket.bind((HOST, PORT))
