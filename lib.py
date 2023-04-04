@@ -1,5 +1,6 @@
 import rsa
-
+import os
+import signal
 # gera as chaves publica e privada na pasta keys
 def generateKeys():
     (publicKey, privateKey) = rsa.newkeys(512)
@@ -15,3 +16,8 @@ def loadKeys():
     with open('keys/privateKey.pem', 'rb') as p:
         privateKey = rsa.PrivateKey.load_pkcs1(p.read())
     return privateKey, publicKey
+
+# kill no processo do programa atual
+def finalizar_programa():
+    pid = os.getpid()
+    os.kill(pid, signal.SIGINT)

@@ -1,5 +1,6 @@
 import socket
 import threading
+import keyboard
 from lib import *
 
 HOST = ''
@@ -7,12 +8,23 @@ PORT = 5000
 
 clientes = []
 
+# finaliza todas as conexões e depois fecha o servidor
+def finaliza_servidor():
+    while True:
+        if(keyboard.is_pressed('q')):
+            for cliente in clientes:
+                mensagem_disconnect = rsa.encrypt("disconnect".encode(), publicKey)
+                cliente.send(mensagem_disconnect)
+                cliente.close()
+            finalizar_programa()
+
 # manda a mensagem passada para todos os clientes conectados
 def transmitir_mensagem(mensagem, remetente):
     for cliente in clientes:
         if cliente != remetente:
             cliente.send(mensagem)
 
+# inicia o processo de leitura e tradução das mensagens enviadas pelos clientes
 def lidar_com_cliente(cliente_socket, endereco):
     print(f"Conexão estabelecida com {endereco}")
     
@@ -20,11 +32,9 @@ def lidar_com_cliente(cliente_socket, endereco):
     clientes.append(cliente_socket)
     
     while True:
-        # inicia o processo de leitura e tradução das mensagens enviadas pelos clientes
         mensagem = cliente_socket.recv(1024)
         mensagem_traduzida = rsa.decrypt(mensagem, privateKey).decode()
-        if not mensagem:
-            break
+        if mensagem_traduzida == "disconnect": break
         
         mensagem_formatada = f"{endereco}: {mensagem_traduzida}"
         print(mensagem_formatada)
@@ -47,6 +57,11 @@ servidor_socket.bind((HOST, PORT))
 servidor_socket.listen(5)
 
 print(f"Servidor escutando na porta {PORT}")
+print("Aperte 'q' para finalizar o programa")
+
+# espera a tecla q ser pressionada para finalizar o programa
+thread_finalizacao = threading.Thread(target=finaliza_servidor)
+thread_finalizacao.start()
 
 while True:
     # o servidor começa a aceitar conexões
