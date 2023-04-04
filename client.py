@@ -1,5 +1,6 @@
 import socket
 import threading
+from lib import *
 
 HOST = 'localhost'
 PORT = 5000

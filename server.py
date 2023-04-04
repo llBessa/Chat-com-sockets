@@ -1,5 +1,6 @@
 import socket
 import threading
+from lib import *
 
 HOST = ''
 PORT = 5000
